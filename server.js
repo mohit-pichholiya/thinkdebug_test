@@ -1,29 +1,24 @@
 const express = require('express');
-const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const router = require('./route'); // your existing routes
-const path = require('path');
+const app = express();
+
+require('dotenv').config();
+
+
+const authRoutes = require('./routes/auth');
+const appointmentRoutes = require('./routes/appointment');
 
 app.use(cors());
+app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+mongoose.connect('mongodb://127.0.0.1:27017/mxpertz', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('MongoDB connected'));
 
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
-
-
-app.use('/', router);
-
-async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/thinkdebug');
-  console.log("MongoDB connected");
-}
-
-main().catch(err => console.log(err));
-
-app.listen(8081, () => {
-  console.log("Server started on http://localhost:8081");
-});
+app.listen(5000, () => console.log('Server running on port 5000'));
